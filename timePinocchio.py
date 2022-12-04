@@ -4,7 +4,8 @@ import subprocess
 import sys
 
 def main():
-    URDF_PATH, DEBUG_MODE, _ = util.parseInputs()
+    # URDF_PATH, DEBUG_MODE, _ = util.parseInputs()
+    URDF_PATH = "urdfs/atlas.urdf"
     util.validateFile(URDF_PATH)
 
     if util.fileExists("timePinocchio.exe"):

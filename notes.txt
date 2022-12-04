@@ -1,0 +1,12 @@
+sudo apt-get -y install git curl build-essential libglib2.0-dev dkms xorg xorg-dev cpufrequtils net-tools meld apt-transport-https cmake libboost-all-dev liburdfdom-dev doxygen libgtest-dev
+
+cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_WITH_AUTODIFF_SUPPORT=ON -DBUILD_WITH_CODEGEN_SUPPORT=ON -DCMAKE_CXX_COMPILER=clang++-12 -DPYTHON_EXECUTABLE=/usr/bin/python3
+
+sudo apt-get -y install linux-headers-$(uname -r)\
+linux-headers-5.15.0-56-generic
+sudo apt-get -y install linux-headers-5.15.0-56-generic
+
+TODO: figure our the protected variables stuff for code gen 
+    find a better way to compile the cpp to .so (catkin?)
+    try the gpu stuff
+    

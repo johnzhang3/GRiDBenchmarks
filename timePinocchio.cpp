@@ -279,16 +279,16 @@ void test(std::string urdf_filepath){
             clock_gettime(CLOCK_MONOTONIC,&end);
             printf("Minv codegen %fus\n",time_delta_us_timespec(start,end)/static_cast<double>(TEST_ITERS));
 
-            clock_gettime(CLOCK_MONOTONIC,&start);
-            for(int i = 0; i < TEST_ITERS; i++){
-                minv_code_gen.evalFunction(qs[0]);
-                minv_code_gen.Minv.template triangularView<Eigen::StrictlyLower>() = 
-                    minv_code_gen.Minv.transpose().template triangularView<Eigen::StrictlyLower>();
-                rnea_code_gen.evalFunction(qs[0],qds[0],zeros);
-                qdds[0].noalias() = minv_code_gen.Minv*(us[0] - rnea_code_gen.res);
-            }
-            clock_gettime(CLOCK_MONOTONIC,&end);
-            printf("FD codegen %fus\n",time_delta_us_timespec(start,end)/static_cast<double>(TEST_ITERS));
+            // clock_gettime(CLOCK_MONOTONIC,&start);
+            // for(int i = 0; i < TEST_ITERS; i++){
+            //     minv_code_gen.evalFunction(qs[0]);
+            //     minv_code_gen.Minv.template triangularView<Eigen::StrictlyLower>() = 
+            //         minv_code_gen.Minv.transpose().template triangularView<Eigen::StrictlyLower>();
+            //     rnea_code_gen.evalFunction(qs[0],qds[0],zeros);
+            //     qdds[0].noalias() = minv_code_gen.Minv*(us[0] - rnea_code_gen.res);
+            // }
+            // clock_gettime(CLOCK_MONOTONIC,&end);
+            // printf("FD codegen %fus\n",time_delta_us_timespec(start,end)/static_cast<double>(TEST_ITERS));
 
             clock_gettime(CLOCK_MONOTONIC,&start);
             for(int i = 0; i < TEST_ITERS; i++){
@@ -297,19 +297,19 @@ void test(std::string urdf_filepath){
             clock_gettime(CLOCK_MONOTONIC,&end);
             printf("ID_DU codegen %fus\n",time_delta_us_timespec(start,end)/static_cast<double>(TEST_ITERS));
 
-            clock_gettime(CLOCK_MONOTONIC,&start);
-            for(int i = 0; i < TEST_ITERS; i++){
-                minv_code_gen.evalFunction(qs[0]);
-                minv_code_gen.Minv.template triangularView<Eigen::StrictlyLower>() = 
-                    minv_code_gen.Minv.transpose().template triangularView<Eigen::StrictlyLower>();
-                rnea_code_gen.evalFunction(qs[0],qds[0],zeros);
-                VectorXT qdd = minv_code_gen.Minv*(us[0] - rnea_code_gen.res);
-                rnea_derivatives_code_gen.evalFunction(qs[0],qds[0],qdd);
-                dqdd_dqs[0].noalias() = -minv_code_gen.Minv*rnea_derivatives_code_gen.dtau_dq;
-                dqdd_dvs[0].noalias() = -minv_code_gen.Minv*rnea_derivatives_code_gen.dtau_dv;
-            }
-            clock_gettime(CLOCK_MONOTONIC,&end);
-            printf("FD_DU codegen %fus\n",time_delta_us_timespec(start,end)/static_cast<double>(TEST_ITERS));
+            // clock_gettime(CLOCK_MONOTONIC,&start);
+            // for(int i = 0; i < TEST_ITERS; i++){
+            //     minv_code_gen.evalFunction(qs[0]);
+            //     minv_code_gen.Minv.template triangularView<Eigen::StrictlyLower>() = 
+            //         minv_code_gen.Minv.transpose().template triangularView<Eigen::StrictlyLower>();
+            //     rnea_code_gen.evalFunction(qs[0],qds[0],zeros);
+            //     VectorXT qdd = minv_code_gen.Minv*(us[0] - rnea_code_gen.res);
+            //     rnea_derivatives_code_gen.evalFunction(qs[0],qds[0],qdd);
+            //     dqdd_dqs[0].noalias() = -minv_code_gen.Minv*rnea_derivatives_code_gen.dtau_dq;
+            //     dqdd_dvs[0].noalias() = -minv_code_gen.Minv*rnea_derivatives_code_gen.dtau_dv;
+            // }
+            // clock_gettime(CLOCK_MONOTONIC,&end);
+            // printf("FD_DU codegen %fus\n",time_delta_us_timespec(start,end)/static_cast<double>(TEST_ITERS));
 
         }
         // multi call with threadPools
@@ -317,56 +317,56 @@ void test(std::string urdf_filepath){
             ReusableThreads<NUM_THREADS> threads;
             std::vector<double> times = {};
 
-            for(int iter = 0; iter < TEST_ITERS; iter++){
-                clock_gettime(CLOCK_MONOTONIC,&start);
-                inverseDynamicsThreaded_codegen<T,NUM_THREADS,NUM_TIME_STEPS>(rnea_code_gen_arr,
-                                                                              model.nq,model.nv,qs,qds,&threads);
-                clock_gettime(CLOCK_MONOTONIC,&end);
-                times.push_back(time_delta_us_timespec(start,end));
-            }
-            printf("[N:%d]: ID codegen: ",NUM_TIME_STEPS); printStats(&times); times.clear();
-            printf("----------------------------------------\n");
+            // for(int iter = 0; iter < TEST_ITERS; iter++){
+            //     clock_gettime(CLOCK_MONOTONIC,&start);
+            //     inverseDynamicsThreaded_codegen<T,NUM_THREADS,NUM_TIME_STEPS>(rnea_code_gen_arr,
+            //                                                                   model.nq,model.nv,qs,qds,&threads);
+            //     clock_gettime(CLOCK_MONOTONIC,&end);
+            //     times.push_back(time_delta_us_timespec(start,end));
+            // }
+            // printf("[N:%d]: ID codegen: ",NUM_TIME_STEPS); printStats(&times); times.clear();
+            // printf("----------------------------------------\n");
 
-            for(int iter = 0; iter < TEST_ITERS; iter++){
-                clock_gettime(CLOCK_MONOTONIC,&start);
-                minvThreaded_codegen<T,NUM_THREADS,NUM_TIME_STEPS>(minv_code_gen_arr,model.nq,model.nv,qs,&threads);
-                clock_gettime(CLOCK_MONOTONIC,&end);
-                times.push_back(time_delta_us_timespec(start,end));
-            }
-            printf("[N:%d]: Minv codegen: ",NUM_TIME_STEPS); printStats(&times); times.clear();
-            printf("----------------------------------------\n");
+            // for(int iter = 0; iter < TEST_ITERS; iter++){
+            //     clock_gettime(CLOCK_MONOTONIC,&start);
+            //     minvThreaded_codegen<T,NUM_THREADS,NUM_TIME_STEPS>(minv_code_gen_arr,model.nq,model.nv,qs,&threads);
+            //     clock_gettime(CLOCK_MONOTONIC,&end);
+            //     times.push_back(time_delta_us_timespec(start,end));
+            // }
+            // printf("[N:%d]: Minv codegen: ",NUM_TIME_STEPS); printStats(&times); times.clear();
+            // printf("----------------------------------------\n");
 
-            for(int iter = 0; iter < TEST_ITERS; iter++){
-                clock_gettime(CLOCK_MONOTONIC,&start);
-                forwardDynamicsThreaded_codegen<T,NUM_THREADS,NUM_TIME_STEPS>(minv_code_gen_arr,rnea_code_gen_arr,
-                                                                              model.nq,model.nv,qs,qds,qdds,us,&threads);
-                clock_gettime(CLOCK_MONOTONIC,&end);
-                times.push_back(time_delta_us_timespec(start,end));
-            }
-            printf("[N:%d]: FD codegen: ",NUM_TIME_STEPS); printStats(&times); times.clear();
-            printf("----------------------------------------\n");
+            // for(int iter = 0; iter < TEST_ITERS; iter++){
+            //     clock_gettime(CLOCK_MONOTONIC,&start);
+            //     forwardDynamicsThreaded_codegen<T,NUM_THREADS,NUM_TIME_STEPS>(minv_code_gen_arr,rnea_code_gen_arr,
+            //                                                                   model.nq,model.nv,qs,qds,qdds,us,&threads);
+            //     clock_gettime(CLOCK_MONOTONIC,&end);
+            //     times.push_back(time_delta_us_timespec(start,end));
+            // }
+            // printf("[N:%d]: FD codegen: ",NUM_TIME_STEPS); printStats(&times); times.clear();
+            // printf("----------------------------------------\n");
 
-            for(int iter = 0; iter < TEST_ITERS; iter++){
-                clock_gettime(CLOCK_MONOTONIC,&start);
-                inverseDynamicsGradientThreaded_codegen<T,NUM_THREADS,NUM_TIME_STEPS>(rnea_derivatives_code_gen_arr,
-                                                                                      model.nq,model.nv,qs,qds,&threads);
-                clock_gettime(CLOCK_MONOTONIC,&end);
-                times.push_back(time_delta_us_timespec(start,end));
-            }
-            printf("[N:%d]: ID_DU codegen: ",NUM_TIME_STEPS); printStats(&times); times.clear();
-            printf("----------------------------------------\n");
+            // for(int iter = 0; iter < TEST_ITERS; iter++){
+            //     clock_gettime(CLOCK_MONOTONIC,&start);
+            //     inverseDynamicsGradientThreaded_codegen<T,NUM_THREADS,NUM_TIME_STEPS>(rnea_derivatives_code_gen_arr,
+            //                                                                           model.nq,model.nv,qs,qds,&threads);
+            //     clock_gettime(CLOCK_MONOTONIC,&end);
+            //     times.push_back(time_delta_us_timespec(start,end));
+            // }
+            // printf("[N:%d]: ID_DU codegen: ",NUM_TIME_STEPS); printStats(&times); times.clear();
+            // printf("----------------------------------------\n");
 
-            for(int iter = 0; iter < TEST_ITERS; iter++){
-                clock_gettime(CLOCK_MONOTONIC,&start);
-                forwardDynamicsGradientThreaded_codegen<T,NUM_THREADS,NUM_TIME_STEPS>(rnea_derivatives_code_gen_arr,
-                                                                                    minv_code_gen_arr,rnea_code_gen_arr,
-                                                                                    model.nq,model.nv,dqdd_dqs,dqdd_dvs,
-                                                                                    qs,qds,us,&threads);
-                clock_gettime(CLOCK_MONOTONIC,&end);
-                times.push_back(time_delta_us_timespec(start,end));
-            }
-            printf("[N:%d]: FD_DU codegen: ",NUM_TIME_STEPS); printStats(&times); times.clear();
-            printf("----------------------------------------\n");
+            // for(int iter = 0; iter < TEST_ITERS; iter++){
+            //     clock_gettime(CLOCK_MONOTONIC,&start);
+            //     forwardDynamicsGradientThreaded_codegen<T,NUM_THREADS,NUM_TIME_STEPS>(rnea_derivatives_code_gen_arr,
+            //                                                                         minv_code_gen_arr,rnea_code_gen_arr,
+            //                                                                         model.nq,model.nv,dqdd_dqs,dqdd_dvs,
+            //                                                                         qs,qds,us,&threads);
+            //     clock_gettime(CLOCK_MONOTONIC,&end);
+            //     times.push_back(time_delta_us_timespec(start,end));
+            // }
+            // printf("[N:%d]: FD_DU codegen: ",NUM_TIME_STEPS); printStats(&times); times.clear();
+            // printf("----------------------------------------\n");
         }
     #endif
 
@@ -377,13 +377,13 @@ void test(std::string urdf_filepath){
 template<typename T, int TEST_ITERS, int CPU_THREADS>
 void run_all_tests(std::string urdf_filepath){
     test<T,10*TEST_ITERS,CPU_THREADS,1>(urdf_filepath);
-    #if !TEST_FOR_EQUIVALENCE
-        test<T,TEST_ITERS,CPU_THREADS,16>(urdf_filepath);
-        test<T,TEST_ITERS,CPU_THREADS,32>(urdf_filepath);
-        test<T,TEST_ITERS,CPU_THREADS,64>(urdf_filepath);
-        test<T,TEST_ITERS,CPU_THREADS,128>(urdf_filepath);
-        test<T,TEST_ITERS,CPU_THREADS,256>(urdf_filepath);
-    #endif
+    // #if !TEST_FOR_EQUIVALENCE
+    //     test<T,TEST_ITERS,CPU_THREADS,16>(urdf_filepath);
+    //     test<T,TEST_ITERS,CPU_THREADS,32>(urdf_filepath);
+    //     test<T,TEST_ITERS,CPU_THREADS,64>(urdf_filepath);
+    //     test<T,TEST_ITERS,CPU_THREADS,128>(urdf_filepath);
+    //     test<T,TEST_ITERS,CPU_THREADS,256>(urdf_filepath);
+    // #endif
 }
 
 int main(int argc, const char ** argv){
